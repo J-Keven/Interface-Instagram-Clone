@@ -1,126 +1,88 @@
-import React, { useState, useEffect, version } from 'react'
-import { View, Text, FlatList, Image, ScrollView } from 'react-native'
-import api from '../../services/api'
+import React, { useState, useEffect } from 'react'
+import { View, Text, FlatList, Image } from 'react-native'
+import { Feather } from '@expo/vector-icons'
 
-// import api from '../../services/api'
 import Style from './style'
+import { Loading } from './style'
 
 export default function Feed() {
 
 	const [feed, setFeed] = useState([])
+	const [page, setPage] = useState(1)
+	const [total, setTotal] = useState(0)
+	const [loading, setLoading] = useState(false)
+	const [refreshing, setRefreshing] = useState(false)
 
-	async function handleReloadPost() {
-		const response = await fetch('http://localhost:3000/feed?_expand=author&_limit=5&_page=1')
+	async function handleLoadPage(numberPage = page, shouldRefres = false) {
 
+		setLoading(true)
+
+		if(total && page > total) return;	
+
+		const response = await fetch(`http://localhost:3000/feed?_expand=author&_limit=5&_page=${numberPage}`)
 		const data = await response.json()
-		console.log(data)
-		setFeed([...feed, ...data])
+		const totalItems = response.headers.get('X-Total-Count')
 
+		setTotal(Math.floor(Number(totalItems) / 5))
+
+		setFeed(shouldRefres ? data: [... feed, ... data])
+		setPage(page + 1)
+		setLoading(false)
+	}
+
+	async function refreshingList(){
+		setRefreshing(true)
+
+		await handleLoadPage(1, true)
+		setRefreshing(false)  
 	}
 
 	useEffect(() => {
-		// handleReloadPost()
+		handleLoadPage()
 
 	}, [])
 	return (
 		<View style={Style.container}>
-			<ScrollView>
-				<View>
-					<View style={Style.header}>
-						<Image source={{ uri: "https://avatars0.githubusercontent.com/u/4669899?s=50&v=4" }} style={Style.avatar} />
-						<Text style={Style.userName}>Jhonnas Keven</Text>
-					</View>
+			<FlatList
+				data={feed}
+				keyExtractor={item => String(item.id)}
+				refreshing={refreshing}
+				onRefresh={refreshingList}
+				onEndReached={() => handleLoadPage()}
+				onEndReachedThreshold={0.1}
+				ListFooterComponent={loading && <Loading />}
+				renderItem={({ item }) => (
 					<View>
-						<Image source={{ uri: "https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/instagram-clone/5.jpeg" }} style={{
-							width: '100%',
-							aspectRatio: 0.834
-						}} />
+						<View style={Style.header}>
+							<View style={Style.headerInfo}>
+								<Image source={{ uri: item.author.avatar }} style={Style.avatar} />
+								<Text style={Style.userName}>{item.author.name}</Text>
+							</View>
+							<Feather name="more-vertical" size={22} style={Style.iconDistance} />
+						</View>
+						<View>
+							<Image source={{ uri: item.image }} style={{
+								width: '100%',
+								aspectRatio: item.aspectRatio
+							}} />
+						</View>
+						<View style={Style.icons}>
+							<View style={Style.iconsLeft}>
+								<Feather name="heart" size={25} style={Style.iconDistance} />
+								<Feather name="message-circle" size={25} style={Style.iconDistance} />
+								<Feather name="send" size={25} />
+							</View>
+							<Feather name="bookmark" size={25} />
+						</View>
+						<View style={Style.description}>
+							<Text>
+								<Text style={Style.userName}>{item.author.name} </Text>
+								{item.description}
+							</Text>
+						</View>
 					</View>
-					<View style={Style.description}> 
-						<Text>
-							<Text style={Style.userName}>Jhonnas Keven </Text>
-						 Code, code and more code!
-					</Text>
-					</View>
-				</View>
-				
-				<View>
-					<View style={Style.header}>
-						<Image source={{ uri: "https://avatars0.githubusercontent.com/u/4669899?s=50&v=4" }} style={Style.avatar} />
-						<Text style={Style.userName}>Jhonnas Keven</Text>
-					</View>
-					<View>
-						<Image source={{ uri: "https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/instagram-clone/5.jpeg" }} style={{
-							width: '100%',
-							aspectRatio: 0.834
-						}} />
-					</View>
-					<View style={Style.description}> 
-						<Text>
-							<Text style={Style.userName}>Jhonnas Keven </Text>
-						 Code, code and more code!
-					</Text>
-					</View>
-				</View>
-
-				<View>
-					<View style={Style.header}>
-						<Image source={{ uri: "https://avatars0.githubusercontent.com/u/4669899?s=50&v=4" }} style={Style.avatar} />
-						<Text style={Style.userName}>Jhonnas Keven</Text>
-					</View>
-					<View>
-						<Image source={{ uri: "https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/instagram-clone/5.jpeg" }} style={{
-							width: '100%',
-							aspectRatio: 0.834
-						}} />
-					</View>
-					<View style={Style.description}> 
-						<Text>
-							<Text style={Style.userName}>Jhonnas Keven </Text>
-						 Code, code and more code!
-					</Text>
-					</View>
-				</View>
-
-				<View>
-					<View style={Style.header}>
-						<Image source={{ uri: "https://avatars0.githubusercontent.com/u/4669899?s=50&v=4" }} style={Style.avatar} />
-						<Text style={Style.userName}>Jhonnas Keven</Text>
-					</View>
-					<View>
-						<Image source={{ uri: "https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/instagram-clone/5.jpeg" }} style={{
-							width: '100%',
-							aspectRatio: 0.834
-						}} />
-					</View>
-					<View style={Style.description}> 
-						<Text>
-							<Text style={Style.userName}>Jhonnas Keven </Text>
-						 Code, code and more code!
-					</Text>
-					</View>
-				</View>
-
-				<View>
-					<View style={Style.header}>
-						<Image source={{ uri: "https://avatars0.githubusercontent.com/u/4669899?s=50&v=4" }} style={Style.avatar} />
-						<Text style={Style.userName}>Jhonnas Keven</Text>
-					</View>
-					<View>
-						<Image source={{ uri: "https://rocketseat-cdn.s3-sa-east-1.amazonaws.com/instagram-clone/5.jpeg" }} style={{
-							width: '100%',
-							aspectRatio: 0.834
-						}} />
-					</View>
-					<View style={Style.description}> 
-						<Text>
-							<Text style={Style.userName}>Jhonnas Keven </Text>
-						 Code, code and more code!
-					</Text>
-					</View>
-				</View>
-				
-			</ScrollView>
+				)}
+			/>
 		</View>
 	)
 }

@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native'
-
+import styled from 'styled-components/native'
 
 export default StyleSheet.create({
 	container: {
@@ -9,6 +9,11 @@ export default StyleSheet.create({
 	header: {
 		padding: 15,
 		flexDirection: "row",
+		justifyContent: "space-between",
+		alignItems: "center"
+	},
+	headerInfo: {
+		flexDirection: "row",
 		alignItems: "center"
 	},
 	userName: {
@@ -16,13 +21,34 @@ export default StyleSheet.create({
 		fontWeight: "bold"
 	},
 	avatar: {
-		width: 32, 
-		height:32,
+		width: 32,
+		height: 32,
 		borderRadius: 16,
 		marginRight: 10
 	},
-	description: {
+	icons: {
+		flexDirection: "row",
 		padding: 15,
+		lineHeight: 18,
+		justifyContent: "space-between",
+		alignItems: "center"
+	},
+	iconsLeft: {
+		flexDirection: "row",
+	},
+	iconDistance: {
+		marginRight: 10,
+
+	},
+	description: {
+		paddingHorizontal: 15,
 		lineHeight: 18,
 	}
 })
+
+export const  Loading = styled.ActivityIndicator.attrs({
+	size: 'small',
+	color: '#999'
+})`
+	margin: 30px 0;
+`;
